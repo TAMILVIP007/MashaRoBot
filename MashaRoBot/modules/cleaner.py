@@ -57,8 +57,7 @@ def clean_blue_text_must_click(update: Update, context: CallbackContext):
             command = fst_word[1:].split("@")
             chat = update.effective_chat
 
-            ignored = sql.is_command_ignored(chat.id, command[0])
-            if ignored:
+            if ignored := sql.is_command_ignored(chat.id, command[0]):
                 return
 
             if command[0] not in command_list:
@@ -109,8 +108,7 @@ def add_bluetext_ignore(update: Update, context: CallbackContext):
     args = context.args
     if len(args) >= 1:
         val = args[0].lower()
-        added = sql.chat_ignore_command(chat.id, val)
-        if added:
+        if added := sql.chat_ignore_command(chat.id, val):
             reply = "<b>{}</b> has been added to bluetext cleaner ignore list.".format(
                 args[0]
             )
@@ -131,8 +129,7 @@ def remove_bluetext_ignore(update: Update, context: CallbackContext):
     args = context.args
     if len(args) >= 1:
         val = args[0].lower()
-        removed = sql.chat_unignore_command(chat.id, val)
-        if removed:
+        if removed := sql.chat_unignore_command(chat.id, val):
             reply = (
                 "<b>{}</b> has been removed from bluetext cleaner ignore list.".format(
                     args[0]
@@ -154,8 +151,7 @@ def add_bluetext_ignore_global(update: Update, context: CallbackContext):
     args = context.args
     if len(args) >= 1:
         val = args[0].lower()
-        added = sql.global_ignore_command(val)
-        if added:
+        if added := sql.global_ignore_command(val):
             reply = "<b>{}</b> has been added to global bluetext cleaner ignore list.".format(
                 args[0]
             )
@@ -175,8 +171,7 @@ def remove_bluetext_ignore_global(update: Update, context: CallbackContext):
     args = context.args
     if len(args) >= 1:
         val = args[0].lower()
-        removed = sql.global_unignore_command(val)
-        if removed:
+        if removed := sql.global_unignore_command(val):
             reply = "<b>{}</b> has been removed from global bluetext cleaner ignore list.".format(
                 args[0]
             )
@@ -211,7 +206,7 @@ def bluetext_ignore_list(update: Update, context: CallbackContext):
         for x in local_ignore_list:
             text += f" - <code>{x}</code>\n"
 
-    if text == "":
+    if not text:
         text = "No commands are currently ignored from bluetext cleaning."
         message.reply_text(text)
         return

@@ -57,7 +57,7 @@ def list_handlers(update, context):
     user = update.effective_user
 
     conn = connected(context.bot, update, chat, user.id, need_admin=False)
-    if not conn is False:
+    if conn is not False:
         chat_id = conn
         chat_name = dispatcher.bot.getChat(conn).title
         filter_list = "*Filter in {}:*\n"
@@ -109,16 +109,12 @@ def filters(update, context):
     )  # use python's maxsplit to separate Cmd, keyword, and reply_text
 
     conn = connected(context.bot, update, chat, user.id)
-    if not conn is False:
+    if conn is not False:
         chat_id = conn
         chat_name = dispatcher.bot.getChat(conn).title
     else:
         chat_id = update.effective_chat.id
-        if chat.type == "private":
-            chat_name = "local filters"
-        else:
-            chat_name = chat.title
-
+        chat_name = "local filters" if chat.type == "private" else chat.title
     if not msg.reply_to_message and len(args) < 2:
         send_message(
             update.effective_message,
@@ -233,16 +229,12 @@ def stop_filter(update, context):
     args = update.effective_message.text.split(None, 1)
 
     conn = connected(context.bot, update, chat, user.id)
-    if not conn is False:
+    if conn is not False:
         chat_id = conn
         chat_name = dispatcher.bot.getChat(conn).title
     else:
         chat_id = update.effective_chat.id
-        if chat.type == "private":
-            chat_name = "Local filters"
-        else:
-            chat_name = chat.title
-
+        chat_name = "Local filters" if chat.type == "private" else chat.title
     if len(args) < 2:
         send_message(update.effective_message, "What should i stop?")
         return

@@ -33,16 +33,16 @@ async def can_change_info(message):
 
 @register(pattern="^/yeschat$")
 async def _(event):
-    if event.is_group:
-        if not event.sender_id == OWNER_ID:
-           if not await can_change_info(message=event):
-              return
-    else:
+    if (
+        event.is_group
+        and event.sender_id != OWNER_ID
+        and not await can_change_info(message=event)
+        or not event.is_group
+    ):
         return
     chat = event.chat
     is_chat = sql.is_chat(chat.id)
-    k = ly.is_chat(chat.id)
-    if k:
+    if k := ly.is_chat(chat.id):
         ly.rem_chat(chat.id)
     if not is_chat:
         ses_id = 'null'
@@ -56,10 +56,9 @@ async def _(event):
 
 @register(pattern="^/nochat$")
 async def _(event):
-    if event.is_group:
-        if not event.sender_id == OWNER_ID:
-          return
-    else:
+    if not event.is_group:
+        return
+    if event.sender_id != OWNER_ID:
         return
     chat = event.chat
     is_chat = sql.is_chat(chat.id)
@@ -72,67 +71,64 @@ async def _(event):
 
 @tbot.on(events.NewMessage(pattern=None))
 async def _(event):
-  if event.is_group:
-        pass
-  else:
+    if not event.is_group:
         return
-  prof = str(event.text)
-  
-  if not "Masha" in prof:
-    if not "masha" in prof:
-      reply_msg = await event.get_reply_message()
-      if not reply_msg.sender_id == BOT_ID:
-           return
-  chat = event.chat
-  msg = prof
-  is_chat = sql.is_chat(chat.id)
-  if not is_chat:
-        return
-  if msg.startswith("/") or msg.startswith("@"):
-    return
-  lan = translator.detect(msg)
-  if not "en" in lan and not lan == "":
-     test = translator.translate(msg, lang_tgt="en")
-  else:
-     test = msg
-  
-  url = "https://iamai.p.rapidapi.com/ask"
-  r = ('\n    \"consent\": true,\n    \"ip\": \"::1\",\n    \"question\": \"{}\"\n').format(test)
-  k = f"({r})"
-  new_string = k.replace("(", "{")
-  lol = new_string.replace(")","}")
-  payload = lol
-  headers = {
-    'content-type': "application/json",
-    'x-forwarded-for': "<user's ip>",
-    'x-rapidapi-key': "33b8b1a671msh1c579ad878d8881p173811jsn6e5d3337e4fc",
-    'x-rapidapi-host': "iamai.p.rapidapi.com"
-    }
+    prof = str(event.text)
 
-  response = requests.request("POST", url, data=payload, headers=headers)
-  lodu = response.json()
-  result = (lodu['message']['text'])
-  if "Thergiakis" in result:
-   pro = random.choice(string)
-   try:
-      async with tbot.action(event.chat_id, 'typing'):
-           await event.reply(pro)
-   except CFError as e:
-           print(e)
-  elif "Ann" in result:
-   pro = "Yeah, My name is Masha"
-   try:
-      async with tbot.action(event.chat_id, 'typing'):
-           await event.reply(pro)
-   except CFError as e:
-           print(e)
-  else:
+    if not "Masha" in prof and "masha" not in prof:
+        reply_msg = await event.get_reply_message()
+        if reply_msg.sender_id != BOT_ID:
+            return
+    chat = event.chat
+    msg = prof
+    is_chat = sql.is_chat(chat.id)
+    if not is_chat:
+          return
+    if msg.startswith("/") or msg.startswith("@"):
+      return
+    lan = translator.detect(msg)
     if not "en" in lan and not lan == "":
-      finale = translator.translate(result, lang_tgt=lan[0])
+       test = translator.translate(msg, lang_tgt="en")
     else:
-      finale = result
-    try:
-      async with tbot.action(event.chat_id, 'typing'):
-           await event.reply(finale)
-    except CFError as e:
-           await event.reply(lodu)
+       test = msg
+
+    url = "https://iamai.p.rapidapi.com/ask"
+    r = ('\n    \"consent\": true,\n    \"ip\": \"::1\",\n    \"question\": \"{}\"\n').format(test)
+    k = f"({r})"
+    new_string = k.replace("(", "{")
+    lol = new_string.replace(")","}")
+    payload = lol
+    headers = {
+      'content-type': "application/json",
+      'x-forwarded-for': "<user's ip>",
+      'x-rapidapi-key': "33b8b1a671msh1c579ad878d8881p173811jsn6e5d3337e4fc",
+      'x-rapidapi-host': "iamai.p.rapidapi.com"
+      }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+    lodu = response.json()
+    result = (lodu['message']['text'])
+    if "Thergiakis" in result:
+        pro = random.choice(string)
+        try:
+           async with tbot.action(event.chat_id, 'typing'):
+                await event.reply(pro)
+        except CFError as e:
+                print(e)
+    elif "Ann" in result:
+     pro = "Yeah, My name is Masha"
+     try:
+        async with tbot.action(event.chat_id, 'typing'):
+             await event.reply(pro)
+     except CFError as e:
+             print(e)
+    else:
+        if "en" not in lan and lan != "":
+            finale = translator.translate(result, lang_tgt=lan[0])
+        else:
+            finale = result
+        try:
+          async with tbot.action(event.chat_id, 'typing'):
+               await event.reply(finale)
+        except CFError as e:
+               await event.reply(lodu)
