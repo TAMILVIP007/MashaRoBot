@@ -34,9 +34,7 @@ async def can_change_info(message):
 @register(pattern="^/nsfw")
 async def nsfw(event):
     if event.is_private:
-       return   
-    if event.is_group:
-            pass
+       return
     if is_nsfwatch_indb(str(event.chat_id)):
         await event.reply("`This Chat has Enabled NSFW watch`")
     else:
@@ -46,12 +44,9 @@ MUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 @register(pattern="^/addnsfw")
 async def nsfw_watch(event):
     if event.is_private:
-       return   
-    if event.is_group:
-        if not await can_change_info(message=event):
-            return
-        else:
-            pass
+       return
+    if event.is_group and not await can_change_info(message=event):
+        return
     if is_nsfwatch_indb(str(event.chat_id)):
         await event.reply("`This Chat Has Already Enabled Nsfw Watch.`")
         return
@@ -61,19 +56,16 @@ async def nsfw_watch(event):
 @register(pattern="^/rmnsfw ?(.*)")
 async def disable_nsfw(event):
     if event.is_private:
-       return   
-    if event.is_group:
-        if not await can_change_info(message=event):
-            return
-        else:
-            pass
+       return
+    if event.is_group and not await can_change_info(message=event):
+        return
     if not is_nsfwatch_indb(str(event.chat_id)):
         await event.reply("This Chat Has Not Enabled Nsfw Watch.")
         return
     rmnsfwatch(str(event.chat_id))
     await event.reply(f"**Removed Chat {event.chat.title} With Id {event.chat_id} From Nsfw Watch**")
     
-@bot.on(events.NewMessage())        
+@bot.on(events.NewMessage())
 async def ws(event):
     warner_starkz = get_all_nsfw_enabled_chat()
     if len(warner_starkz) == 0:
@@ -94,15 +86,9 @@ async def ws(event):
             pass
         lolchat = await event.get_chat()
         ctitle = event.chat.title
-        if lolchat.username:
-            hehe = lolchat.username
-        else:
-            hehe = event.chat_id
+        hehe = lolchat.username or event.chat_id
         wstark = await event.client.get_entity(his_id)
-        if wstark.username:
-            ujwal = wstark.username
-        else:
-            ujwal = wstark.id
+        ujwal = wstark.username or wstark.id
         try:
             await tbot.send_message(event.chat_id, f"**#NSFW_WATCH** \n**Chat :** `{hehe}` \n**Nsfw Sender - User / Bot :** `{ujwal}` \n**Chat Title:** `{ctitle}`")  
             return

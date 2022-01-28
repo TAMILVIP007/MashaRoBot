@@ -51,8 +51,7 @@ def no_longer_afk(update: Update, context: CallbackContext):
     if not user:  # ignore channels
         return
 
-    res = sql.rm_afk(user.id)
-    if res:
+    if res := sql.rm_afk(user.id):
         if message.new_chat_members:  # dont say msg
             return
         firstname = update.effective_user.first_name
